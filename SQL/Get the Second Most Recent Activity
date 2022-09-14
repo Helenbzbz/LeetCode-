@@ -1,0 +1,21 @@
+# Write your MySQL query statement below
+with processed as (select
+    startDate,
+    endDate,
+    username,
+    activity,
+    rank() over (partition by username order by startDate desc) as rank_id
+from UserActivity)
+
+select
+startDate,
+endDate,
+a.username,
+activity
+from processed a
+join (select username, max(rank_id) as max_id from processed
+where rank_id <= 2
+group by 1) as b
+on a.username = b.username
+and a.rank_id = b.max_id
+
